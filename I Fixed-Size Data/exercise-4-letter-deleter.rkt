@@ -6,5 +6,5 @@
 
 ; divides str and puts "_" where you indicate (i)
 
-(define (divide-words str i) (string-append (substring str 0 (- i 1)) (substring str i (string-length str))))
+(define (letter-deleter str i) (string-append (substring str 0 (- i 1)) (substring str i (string-length str))))
 

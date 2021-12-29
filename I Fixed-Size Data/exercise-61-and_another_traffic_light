@@ -1,0 +1,92 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-61-and_another_traffic_light) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+(define RAD 10)         
+(define SPACE (/ RAD 2)) 
+(define MT (empty-scene (* RAD 10) (* RAD 3)))
+
+
+
+
+(define RED 0)
+(define GREEN 1)
+(define YELLOW 2)
+
+(define (fn-for-tl tl)  
+  (cond [(equal? tl RED) (... tl)]
+        [(equal? tl GREEN) (... tl)]
+        [(equal? tl YELLOW) (... tl)]))
+
+
+
+
+(check-expect (tl-next RED) GREEN)
+(check-expect (tl-next GREEN) YELLOW)
+(check-expect (tl-next YELLOW) RED)
+
+(define (tl-next cs)
+  (cond
+    [(equal? cs RED) GREEN]
+    [(equal? cs GREEN) YELLOW]
+    [(equal? cs YELLOW) RED]))
+
+
+(check-expect (tl-render 0)
+              (overlay
+               (beside (circle RAD "solid" "red")
+                       (square SPACE "outline" "white")
+                       (circle RAD "outline" "yellow")
+                       (square SPACE "outline" "white")
+                       (circle RAD "outline" "green"))
+               MT))
+(check-expect (tl-render 2)
+              (overlay
+               (beside (circle RAD "outline" "red")
+                       (square SPACE "outline" "white")
+                       (circle RAD "solid" "yellow")
+                       (square SPACE "outline" "white")
+                       (circle RAD "outline" "green"))
+               MT))
+(check-expect (tl-render 1)
+              (overlay
+               (beside (circle RAD "outline" "red")
+                       (square SPACE "outline" "white")
+                       (circle RAD "outline" "yellow")
+                       (square SPACE "outline" "white")
+                       (circle RAD "solid" "green"))
+               MT))
+
+(define (tl-render cs)
+ (overlay
+  (beside (bulb cs 0)
+          (square SPACE "outline" "white")
+          (bulb cs 2)
+          (square SPACE "outline" "white")
+          (bulb cs 1))
+  MT))
+
+
+(check-expect (conv RED) "red")
+(check-expect (conv GREEN) "green")
+(check-expect (conv YELLOW) "yellow")
+
+(define (conv tl)
+  (cond [(equal? tl RED) "red"]
+        [(equal? tl GREEN) "green"]
+        [(equal? tl YELLOW) "yellow"]))
+
+
+(define (bulb on c)
+  (if (equal? on c)
+      (circle RAD "solid" (conv c))
+      (circle RAD "outline" (conv c))))
+
+
+(define (traffic-light-simulation initial-state)
+  (big-bang initial-state
+            [to-draw tl-render]
+            [on-tick tl-next 1]))

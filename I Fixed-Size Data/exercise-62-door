@@ -1,0 +1,69 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-62-door) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+
+(define LOCKED "locked")
+(define CLOSED "closed")
+(define OPEN "open")
+
+
+(define UNLOCK "u")
+(define LOCK "l")
+(define PUSH " ")
+
+(define (fun-for-ds state-of-door) 
+  (cond
+    [(string=? LOCKED state-of-door) ...]
+    [(string=? CLOSED state-of-door) ...]
+    [(string=? OPEN state-of-door) ...]))
+
+
+
+(check-expect (door-closer LOCKED) LOCKED)
+(check-expect (door-closer CLOSED) CLOSED)
+(check-expect (door-closer OPEN) CLOSED)
+
+
+(define (door-closer state-of-door)
+  (cond
+    [(string=? LOCKED state-of-door) LOCKED]
+    [(string=? CLOSED state-of-door) CLOSED]
+    [(string=? OPEN state-of-door) CLOSED]))
+
+
+
+
+(check-expect (door-actions LOCKED "u") CLOSED)
+(check-expect (door-actions CLOSED "l") LOCKED)
+(check-expect (door-actions CLOSED " ") OPEN)
+(check-expect (door-actions OPEN "a") OPEN)
+(check-expect (door-actions CLOSED "a") CLOSED)
+
+
+(define (door-actions s k)
+  (cond
+    [(and (string=? LOCKED s) (string=? "u" k))
+     CLOSED]
+    [(and (string=? CLOSED s) (string=? "l" k))
+     LOCKED]
+    [(and (string=? CLOSED s) (string=? " " k))
+     OPEN]
+    [else s]))
+
+
+(check-expect (door-render CLOSED)
+              (text CLOSED 40 "red"))
+
+(define (door-render s)
+  (text s 40 "red"))
+
+
+(define (door-simulation initial-state)
+  (big-bang initial-state
+          [on-tick door-closer 3] 
+          [on-key door-actions]
+          [to-draw door-render]))

@@ -1,0 +1,12 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-105-coord) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+
+(define CNeg1 -4)
+(define CNeg2 -9)
+
+(define CPos1  6)
+(define CPos2 12)
+
+(define C1 (make-posn 6  -6))
+(define C2 (make-posn 12 -9))

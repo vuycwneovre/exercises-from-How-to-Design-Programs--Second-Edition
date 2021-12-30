@@ -1,0 +1,102 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-85-run_func) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define-struct editor [pre post])
+
+(define E1 (make-editor " " ""))
+(define E2 (make-editor "Some " "text"))
+(define E3 (make-editor "Eskettit!" ""))
+(define E4 (make-editor "A longer " "text"))
+
+(define WIDTH  200)
+(define HEIGHT 20)
+(define MTS    (empty-scene WIDTH HEIGHT))
+
+(define CURSOR     (rectangle 1 20 "solid" "red"))
+(define TEXT-COLOR "black")
+(define TEXT-SIZE  16)
+
+
+(define (render e)
+  (overlay/align "left" "center"
+                 (beside (text (editor-pre e) TEXT-SIZE TEXT-COLOR)
+                         CURSOR
+                         (text (editor-post e) TEXT-SIZE TEXT-COLOR))
+                 MTS))
+
+
+
+
+(define (edit e ke)
+  (cond
+    [(string=? ke "\b")        (backspace e)]
+    [(or (string=? ke "left")
+         (string=? ke "right")) (arrow e ke)]
+    [(or (string=? ke "\t")
+         (string=? ke "\r"))               e]
+    [(= (string-length ke) 1)  (insert e ke)]
+    [else                                  e]))
+
+
+
+(define (backspace e)
+  (make-editor (string-remove-last (editor-pre e))
+               (editor-post e)))
+
+
+(define (arrow e ke)
+  (cond
+    [(string=? ke "left")  (make-editor
+                            (string-remove-last (editor-pre e))
+                            (string-insert (string-last (editor-pre e))
+                                           (editor-post e)
+                                           0))]
+    [(string=? ke "right") (make-editor
+                            (string-append (editor-pre e)
+                                           (string-first (editor-post e)))
+                            (string-rest (editor-post e)))]))
+
+
+
+(define (insert e ke)
+  (make-editor (string-insert ke (editor-pre e) (string-length (editor-pre e)))
+               (editor-post e)))
+
+
+(define (run s)
+  (big-bang (make-editor s "")
+    [to-draw render]
+    [on-key    edit]))
+                                          
+
+(define (string-first str)
+  (if (> (string-length str) 0)
+      (string-ith str 0)
+      str))
+
+
+(define (string-last str)
+  (if (> (string-length str) 0)
+      (string-ith str (- (string-length str) 1))
+      str))
+
+
+(define (string-remove-last str)
+  (if (> (string-length str) 0)
+      (string-append (substring str 0 (- (string-length str) 1)))
+      str))
+
+
+(define (string-insert s str i)
+  (if (> (string-length str) 0)
+      (string-append (substring str 0 i) s (substring str i))
+      s))
+
+
+(define (string-rest str)
+  (if (> (string-length str) 0)
+      (string-append (substring str 1))
+      str))

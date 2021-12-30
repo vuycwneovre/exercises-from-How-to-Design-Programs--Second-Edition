@@ -1,0 +1,133 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-87-finished) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define-struct editor [text index])
+
+
+(define E1 (make-editor " " 1))
+(define E2 (make-editor "Some text" 5))
+(define E3 (make-editor "Eskettit!" 9))
+(define E4 (make-editor "A longer text" 9))
+
+
+(define WIDTH  200)
+(define HEIGHT 20)
+(define MTS    (empty-scene WIDTH HEIGHT))
+
+(define CURSOR     (rectangle 1 20 "solid" "red"))
+(define TEXT-COLOR "black")
+(define TEXT-SIZE  16)
+
+
+
+(define (render e)
+  (overlay/align "left" "center"
+                 (place-cursor e CURSOR)
+                 MTS))
+
+
+
+(define (place-cursor e img)
+  (beside (text (substring (editor-text e) 0 (editor-index e))
+                TEXT-SIZE TEXT-COLOR)
+          img
+          (text (substring (editor-text e) (editor-index e))
+                TEXT-SIZE TEXT-COLOR)))
+
+
+
+
+(define (edit e ke)
+  (cond
+    [(string=? ke "\b")             (backspace e)]
+    
+    [(or (string=? ke "left")
+         (string=? ke "right"))      (arrow e ke)]
+    
+    [(or (string=? ke "\t")
+         (string=? ke "\r"))               e]
+    
+    [(= (string-length ke) 1)  (if (ignore-ke? e ke)
+                                   e
+                                   (insert e ke))]
+    
+    [else                                       e]))
+
+
+
+(define (ignore-ke? e ke)
+  (> (image-width (render (insert e ke))) WIDTH))
+
+
+
+(define (backspace e)
+  (make-editor (string-delete (editor-text e) (sub1 (editor-index e)))
+               (- (editor-index e) 1)))
+               
+
+
+
+(define (arrow e ke)
+  (move-cursor e ke))
+
+
+
+(define (move-cursor e ke)
+  (if (string=? ke "left")
+      (if (and (string=? ke "left") (> (editor-index e) 0))
+          (make-editor (editor-text e) (sub1 (editor-index e)))
+          e)
+      (if (and (string=? ke "right")
+               (< (editor-index e) (string-length (editor-text e))))
+          (make-editor (editor-text e) (add1 (editor-index e)))
+          e)))
+
+
+(define (insert e ke)
+  (make-editor (string-insert ke (editor-text e) (editor-index e))
+               (add1 (editor-index e))))
+
+
+(define (run s)
+  (big-bang (make-editor s (string-length s))
+    [to-draw render]
+    [on-key    edit]))
+                                          
+
+(define (string-first str)
+  (if (> (string-length str) 0)
+      (string-ith str 0)
+      str))
+
+
+(define (string-last str)
+  (if (> (string-length str) 0)
+      (string-ith str (- (string-length str) 1))
+      str))
+
+
+(define (string-remove-last str)
+  (if (> (string-length str) 0)
+      (string-append (substring str 0 (- (string-length str) 1)))
+      str))
+
+
+(define (string-insert s str i)
+  (if (> (string-length str) 0)
+      (string-append (substring str 0 i) s (substring str i))
+      s))
+
+
+(define (string-rest str)
+  (if (> (string-length str) 0)
+      (string-append (substring str 1))
+      str))
+
+
+(define (string-delete str i)
+  (if (> (string-length str) 0)
+      (string-append (substring str 0 i) (substring str (+ i 1)))
+      str))

@@ -1,0 +1,14 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname exercise-72-data_definitions) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(define-struct entry [name phone email])
+; An Entry is a structure: 
+;   (make-entry String String String)
+; interpretation a contact's name, phone#, and email 
+
+; (john 1234 john@1234.com)
+
+(define-struct phone# [area switch num])
+; *** [000, 999] area code
+; *** [000, 999] phone switch
+; **** [0000, 9999] neighborhood

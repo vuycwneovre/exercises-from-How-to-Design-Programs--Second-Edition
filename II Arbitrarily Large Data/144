@@ -1,0 +1,25 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |144|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+; NEList-of-temperatures -> Number
+; computes the average temperature 
+ 
+(check-expect (average (cons 1 (cons 2 (cons 3 '()))))
+              2)
+ 
+(define (average ne-l)
+  (/ (sum ne-l)
+     (how-many ne-l)))
+
+(define (sum alot)
+  (cond
+    [(empty? alot) 0]
+    [else (+ (first alot) (sum (rest alot)))]))
+
+(define (how-many alot)
+  (cond
+    [(empty? alot) 0]
+    [else (+ (how-many (rest alot)) 1)]))
+
+; it will work because of the structure of the inputs
+ 

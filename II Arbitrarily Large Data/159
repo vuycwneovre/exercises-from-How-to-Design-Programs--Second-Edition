@@ -1,0 +1,110 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |159|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define ROWS    18)
+(define COLS     8)
+(define SIZE    10)
+(define IMG     (square SIZE "outline" "black"))
+(define BALLOON (circle 3 "solid" "red"))
+
+(check-expect (throw P1 (make-posn 50 130))
+              (make-pair 1 (cons (make-posn 50 130) '())))
+(check-expect (throw P2 (make-posn 20 25))
+              (make-pair 0 (cons (make-posn 20 25)
+                                 (cons (make-posn 100 120) '()))))
+(check-expect
+ (throw P3 (make-posn 75 80))
+ (make-pair
+  2 (cons (make-posn 75 80)
+          (cons (make-posn 40 90)
+                   (cons (make-posn 80 50)
+                         (cons (make-posn 120 155) '()))))))
+(check-expect (throw P4 (make-posn 15 100)) P4)
+
+(check-expect (add-balloons P1) MTS)
+(check-expect (add-balloons P2)
+              (place-image BALLOON 100 120 MTS))
+(check-expect
+ (add-balloons P3)
+ (place-image BALLOON 40 90
+              (place-image BALLOON 80 50
+                           (place-image BALLOON 120 155 MTS))))
+(check-expect (col 0 IMG) empty-image)
+(check-expect (col 2 IMG) (above IMG IMG))
+(check-expect (col 5 IMG) (above IMG IMG IMG IMG IMG))
+(check-expect (row 0 IMG) empty-image)
+(check-expect (row 2 IMG) (beside IMG IMG))
+(check-expect (row 5 IMG) (beside IMG IMG IMG IMG IMG))
+
+
+(define-struct pair [balloon# lob])
+; A Pair is a structure (make-pair N List-of-posns)
+; A List-of-posns is one of: 
+; – '()
+; – (cons Posn List-of-posns)
+; interpretation (make-pair n lob) means n balloons 
+; must yet be thrown and added to lob
+
+(define P1 (make-pair 2 '()))
+(define P2
+  (make-pair 1 (cons (make-posn 100 120) '())))
+(define P3
+  (make-pair 3
+             (cons (make-posn 40 90)
+                   (cons (make-posn 80 50)
+                         (cons (make-posn 120 155) '())))))
+(define P4 (make-pair 0 (cons (make-posn 100 200) '())))
+
+
+
+
+(define (col n img)
+  (cond
+    [(zero? n) empty-image]
+    [else (above img (col (sub1 n) img))]))
+
+
+
+(define (row n img)
+  (cond
+    [(zero? n) empty-image]
+    [else (beside img (row (sub1 n) img))]))
+
+(define BACKGROUND (empty-scene (* COLS SIZE) (* ROWS SIZE)))
+(define MTS (col ROWS (row COLS IMG)))
+
+
+(define (riot n)
+  (big-bang (make-pair n '())
+    [to-draw    add-balloons]
+    [on-tick throw-balloon 1]))
+
+
+(define (add-balloons p)
+  (process-balloons (pair-lob p)))
+
+(define (process-balloons lop)
+  (cond
+    [(empty? lop) MTS]
+    [else
+     (place-image BALLOON
+                  (posn-x (first lop))
+                  (posn-y (first lop))
+                  (process-balloons (rest lop)))]))
+
+
+(define (throw-balloon p)
+  (throw p
+         (make-posn (random (image-width MTS))
+                    (random (image-height MTS)))))
+
+
+
+(define (throw p pos)
+  (if (zero? (pair-balloon# p))
+      p
+      (make-pair (sub1 (pair-balloon# p))
+                 (cons pos (pair-lob p)))))

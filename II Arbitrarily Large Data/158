@@ -1,0 +1,60 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |158|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define SW1 (cons 9 '()))
+(define SW2 (cons 59 (cons 15 '())))
+
+(check-expect (to-image SW1)
+              (place-image SHOT XSHOTS 9 BACKGROUND))
+(check-expect (to-image SW2)
+              (place-image SHOT XSHOTS 59
+                           (place-image SHOT XSHOTS 15 BACKGROUND)))
+(check-expect (tock SW1) (cons 8 '()))
+(check-expect (tock SW2) (cons 58 (cons 14 '())))
+(check-expect (keyh SW1 " ") (cons HEIGHT SW1))
+(check-expect (keyh SW1 "a") SW1)
+(check-expect (keyh SW1 "up") SW1)
+(check-expect (keyh SW2 " ") (cons HEIGHT SW2))
+(check-expect (keyh SW2 "down") SW2)
+
+
+(define HEIGHT 30) ; distances in terms of pixels 
+(define WIDTH 220)
+(define XSHOTS (/ WIDTH 3))
+ 
+; graphical constants 
+(define BACKGROUND (rectangle WIDTH HEIGHT "solid" "green"))
+(define SHOT (rectangle 1 3 "solid" "red"))
+; it is possible
+
+; ShotWorld -> ShotWorld 
+(define (main w0)
+  (big-bang w0
+    [on-tick tock]
+    [on-key keyh]
+    [to-draw to-image]))
+ 
+; ShotWorld -> ShotWorld 
+; moves each shot up by one pixel 
+(define (tock w)
+  (cond
+    [(empty? w) '()]
+    [else (if (negative? (first w))
+         (tock (rest w))
+         (cons (sub1 (first w)) (tock (rest w))))]))
+
+; ShotWorld KeyEvent -> ShotWorld 
+; adds a shot to the world if the space bar is hit 
+(define (keyh w ke)
+  (if (key=? ke " ") (cons HEIGHT w) w))
+ 
+; ShotWorld -> Image 
+; adds each shot y on w at (XSHOTS,y} to BACKGROUND
+(define (to-image w)
+  (cond
+    [(empty? w) BACKGROUND]
+    [else (place-image SHOT XSHOTS (first w)
+                       (to-image (rest w)))]))

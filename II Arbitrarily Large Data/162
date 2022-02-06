@@ -1,0 +1,27 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |162|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(define amount-per-hour 14)
+(define max-hours 100)
+
+(check-expect (wage 2) (* amount-per-hour 2))
+(check-expect (wage* '()) '())
+(check-expect (wage* (cons 1
+                           (cons 2 '())))
+              (cons (* amount-per-hour 1)
+                    (cons (* amount-per-hour 2) '())))
+(check-error (wage* (cons 1
+                          (cons 101 '()))))
+
+; List-of-numbers -> List-of-numbers
+; computes the weekly wages for all given weekly hours
+(define (wage* whrs)
+  (cond
+    [(empty? whrs) '()]
+    [else (if (> (first whrs) max-hours)
+              (error "error")
+              (cons (wage (first whrs)) (wage* (rest whrs))))]))
+; Number -> Number
+; computes the wage for h hours of work
+(define (wage h)
+  (* amount-per-hour h))

@@ -1,0 +1,26 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |169|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp")) #f)))
+(check-expect (legal '()) '())
+(check-expect (legal (cons (make-posn 1 2) '()))
+              (cons (make-posn 1 2) '()))
+(check-expect (legal (cons (make-posn 1 2)
+                           (cons (make-posn 101 201) '())))
+              (cons (make-posn 1 2) '()))
+
+(define (legal l)
+  (cond
+    [(empty? l) '()]
+    [else
+     (if (interval (first l))
+         (cons (first l) (legal (rest l)))
+         (legal (rest l)))]))
+
+(define (interval i)
+  (and
+   (and
+    (< (posn-x i) 100)
+    (> (posn-x i) 0))
+   (and
+    (< (posn-y i) 200)
+    (> (posn-y i) 0))))

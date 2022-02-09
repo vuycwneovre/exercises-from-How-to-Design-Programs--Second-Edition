@@ -1,0 +1,56 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |171|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp")) #f)))
+(read-file "ttt.txt")
+
+; A List-of-string is one of:
+; - '()
+; - (cons String List-of-string)
+; interp. a list of strings
+
+; each line is represented as a string
+(read-lines "ttt.txt")
+(cons "TTT"
+      (cons " "
+            (cons "Put up in a place..." '())))
+
+; each word is a string
+(read-words "ttt.txt")
+(cons "TTT"
+      (cons "Put"
+            (cons "up..." '())))
+
+; A List-of-list-of-strings is one of:
+; - '()
+; - (cons List-of-strings List-of-list-of-strings)
+; each line is represented as a list of strings,
+; one per word
+(read-words/line "ttt.txt")
+(cons "TTT" '())
+(cons '()
+      (cons '()
+            (cons
+             (cons "put" (cons "up" (cons "in..." '()))) '())))
+
+; An LN is one of: 
+; – '()
+; – (cons Los LN)
+; interpretation a list of lines, each is a list of Strings
+ 
+(define line0 (cons "hello" (cons "world" '())))
+(define line1 '())
+ 
+(define ln0 '())
+(define ln1 (cons line0 (cons line1 '())))
+ 
+; LN -> List-of-numbers
+; determines the number of words on each line 
+ 
+(check-expect (words-on-line ln0) '())
+(check-expect (words-on-line ln1) (cons 2 (cons 0 '())))
+ 
+(define (words-on-line ln)
+  (cond
+    [(empty? ln) '()]
+    [else (cons (length (first ln))
+                (words-on-line (rest ln)))]))

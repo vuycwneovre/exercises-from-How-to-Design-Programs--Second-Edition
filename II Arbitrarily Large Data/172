@@ -1,0 +1,42 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |172|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp")) #f)))
+(define line0 (cons "a"
+                    (cons "b"
+                          (cons "c" '()))))
+(define line1 (cons "c"
+                    (cons "d"
+                          (cons "e" '()))))
+(define lls (cons line0 (cons line1 '())))
+
+(check-expect (collapse lls) "a b c \nc d e \n")
+
+(define (collapse l)
+  (cond
+    [(empty? l) ""]
+    [else
+     (string-append (collapse-words (first l))
+                    "\n"
+                    (collapse (rest l)))]))
+
+
+
+
+(check-expect (collapse-words (cons "a"
+                                    (cons "b"
+                                          (cons "c" '()))))
+              "a b c ")
+
+(define (collapse-words l)
+  (cond
+    [(empty? l) ""]
+    [else
+     (string-append (first l)
+                    " "
+                    (collapse-words (rest l)))]))
+
+
+(write-file "ttt.dat"
+            (collapse (read-words/line "ttt.txt")))
+                
+                     

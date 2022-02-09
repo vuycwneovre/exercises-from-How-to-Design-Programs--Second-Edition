@@ -1,0 +1,69 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |175|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp")) #f)))
+(define-struct wct (letters words lines))
+; a WC (word count) is a structure:
+; (make-wc N N N)
+; interp. a file's word count
+
+(define (wc f)
+  (count* (read-words/line f)))
+
+ 
+(define line0 (cons "a"
+                    (cons "b"
+                          (cons "c"'()))))
+(define line1 '())
+(define line2
+  (cons "d"
+        (cons "e"
+              (cons "f" '()))))
+
+(define lls0 (cons line0 (cons line1 (cons line2 '()))))
+
+; WC
+(check-expect (count* lls0) (make-wct 6 6 3))
+
+(define (count* lls)
+  (make-wct (count-letters lls)
+            (count-words   lls)
+            (count-lines   lls)))
+
+; LLS
+(check-expect (count-letters lls0) 6)
+
+(define (count-letters lls)
+  (cond
+    [(empty? lls) 0]
+    [else
+     (+ (count-letters-in-word (first lls))
+        (count-letters (rest lls)))]))
+
+
+(check-expect (count-letters-in-word (cons "abc"
+                                           (cons "def" '())))
+              6)
+
+(define (count-letters-in-word los)
+  (cond
+    [(empty? los) 0]
+    [else
+     (+ (string-length (first los))
+        (count-letters-in-word (rest los)))]))
+
+(check-expect (count-words lls0) 6)
+
+(define (count-words lls)
+  (cond
+    [(empty? lls) 0]
+    [else
+     (+ (length (first lls))
+        (count-words (rest lls)))]))
+
+
+(check-expect (count-lines lls0) 3)
+
+(define (count-lines lls)
+  (cond
+    [(empty? lls) 0]
+    [else (+ 1 (count-lines (rest lls)))]))
